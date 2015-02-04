@@ -12,7 +12,7 @@ void ofApp::setup(){
     debug = false;
     easeRange = 2000;
     
-    currentMode = EASEINOUT;
+    currentMode = LINEAR;
     //manualCounter = ULLONG_MAX;
     manualCounter = 0;
     
