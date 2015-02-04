@@ -24,9 +24,21 @@ public:
     vector<unsigned long long> timeList;
     vector<ofColor> colorList;
     int currentIndex;
+    int easeRange;
     
     unsigned long long timeRange;
     float lerpPerc;
     
+    bool debug;
+    
+    enum modes {
+        LINEAR,
+        EASEINOUT,
+        MANUAL
+    };
+    
+    modes currentMode;
+    
+    unsigned long long manualCounter;
 		
 };

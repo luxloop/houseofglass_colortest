@@ -9,6 +9,12 @@ void ofApp::setup(){
     currentIndex = 0;
     timeRange = 0;
     lerpPerc = 0.0f;
+    debug = false;
+    easeRange = 2000;
+    
+    currentMode = LINEAR;
+    //manualCounter = ULLONG_MAX;
+    manualCounter = 0;
     
     
     string data = colorscript.getText();
@@ -56,25 +62,83 @@ void ofApp::setup(){
 void ofApp::update(){
     unsigned long long ellapsed = ofGetElapsedTimeMillis();
     
-    if (currentIndex < timeList.size()-1) {
-        if (currentIndex == 0) {
-            timeRange = timeList[0];
-            lerpPerc = (long double) ellapsed/timeRange;
-        } else {
-            timeRange = timeList[currentIndex] - timeList[currentIndex-1];
-            lerpPerc = (long double) (ellapsed - timeList[currentIndex-1])/timeRange;
-        }
-//        lerpPerc = (float) ellapsed/timeRange;
-        
-        if (ellapsed < timeList[currentIndex]) {
-            //screenColor = colorList[currentIndex];
-            screenColor = colorList[currentIndex].getLerped(colorList[currentIndex+1], lerpPerc);
-        } else {
-            currentIndex++;
-        }
-    } else {
-        screenColor = colorList[colorList.size()-1];
+    switch (currentMode) {
+        case LINEAR:
+            if (currentIndex < timeList.size()-1) {
+                if (currentIndex == 0) {
+                    timeRange = timeList[0];
+                    lerpPerc = (long double) ellapsed/timeRange;
+                } else {
+                    timeRange = timeList[currentIndex] - timeList[currentIndex-1];
+                    lerpPerc = (long double) (ellapsed - timeList[currentIndex-1])/timeRange;
+                }
+                
+                if (ellapsed < timeList[currentIndex]) {
+                    //screenColor = colorList[currentIndex];
+                    screenColor = colorList[currentIndex].getLerped(colorList[currentIndex+1], lerpPerc);
+                } else {
+                    currentIndex++;
+                }
+            } else {
+                screenColor = colorList[colorList.size()-1];
+            }
+            break;
+            
+        case EASEINOUT:
+            if (currentIndex < timeList.size()-1) {
+                if (currentIndex == 0) {
+                    timeRange = timeList[0];
+                } else {
+                    timeRange = timeList[currentIndex] - timeList[currentIndex-1];
+                }
+                
+                if (timeRange > easeRange) {
+                    timeRange = easeRange;
+                    if (ellapsed < timeList[currentIndex]-timeRange) {
+                        lerpPerc = 0.0f;
+                    } else {
+                        lerpPerc = (long double) (ellapsed - (timeList[currentIndex]-timeRange))/timeRange;
+//                        lerpPerc = 1.0f;
+                    }
+                } else {
+                    if (currentIndex == 0) {
+                        lerpPerc = (long double) ellapsed/timeRange;
+                    } else {
+                        lerpPerc = (long double) (ellapsed - timeList[currentIndex-1])/timeRange;
+                    }
+                }
+                
+                if (ellapsed < timeList[currentIndex]) {
+                    //screenColor = colorList[currentIndex];
+                    screenColor = colorList[currentIndex].getLerped(colorList[currentIndex+1], lerpPerc);
+                } else {
+                    currentIndex++;
+                }
+            } else {
+                screenColor = colorList[colorList.size()-1];
+            }
+            break;
+            
+        case MANUAL:
+            if (currentIndex < timeList.size()-1) {
+                if (ellapsed - manualCounter < easeRange && manualCounter != 0) {
+                    lerpPerc = (long double) (ellapsed-manualCounter)/easeRange;
+                    screenColor = colorList[currentIndex].getLerped(colorList[currentIndex+1], lerpPerc);
+                } else if (manualCounter == 0) {
+                    screenColor = colorList[currentIndex];
+                } else {
+                    screenColor = colorList[currentIndex+1];
+                }
+            } else {
+                screenColor = colorList[colorList.size()-1];
+            }
+            break;
+            
+        default:
+            break;
     }
+    
+    
     
 
 }
@@ -83,19 +147,68 @@ void ofApp::update(){
 void ofApp::draw(){
     ofSetColor(screenColor);
     ofRect(0, 0, ofGetWidth(), ofGetHeight());
-    ofSetColor(0, 0, 0);
-    ofDrawBitmapString("current index: " + ofToString(currentIndex), 20,ofGetHeight()-50);
-    ofDrawBitmapString("range: " + ofToString(timeRange), 20,ofGetHeight()-40);
     
-    ofDrawBitmapString(ofToString(ofGetElapsedTimeMillis()), 20,ofGetHeight()-20);
-    ofDrawBitmapString(ofToString(lerpPerc,3), 20,ofGetHeight()-10);
-    ofSetColor(255);
+    if (debug) {
+        ofSetColor(0, 0, 0);
+        string mode;
+        switch (currentMode) {
+            case LINEAR:
+            default:
+                mode = "LINEAR";
+                break;
+            
+            case EASEINOUT:
+                mode = "EASED";
+                break;
+                
+            case MANUAL:
+                mode = "MANUAL";
+                break;
+            
+        }
+        ofDrawBitmapString(mode, 20, ofGetHeight()-60);
+        ofDrawBitmapString("current index: " + ofToString(currentIndex), 20, ofGetHeight()-50);
+        ofDrawBitmapString("range: " + ofToString(timeRange), 20, ofGetHeight()-40);
+        
+        ofDrawBitmapString("elapsed time: " + ofToString(ofGetElapsedTimeMillis()), 20, ofGetHeight()-20);
+        ofDrawBitmapString("interpolation: " + ofToString(lerpPerc,1) + "%", 20, ofGetHeight()-10);
+        ofSetColor(255);
+    }
     
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    switch (key) {
+        case '/':
+            debug = !debug;
+            break;
+            
+        case '1':
+            currentMode = LINEAR;
+            break;
+            
+        case '2':
+            currentMode = EASEINOUT;
+            break;
+            
+        case '3':
+            currentMode = MANUAL;
+            break;
+            
+        case ' ':
+            if (currentMode == MANUAL) {
+                if (currentIndex < timeList.size()-1 && manualCounter != 0) {
+                    currentIndex++;
+                }
+                manualCounter = ofGetElapsedTimeMillis();
+                
+            }
+            break;
+            
+        default:
+            break;
+    }
 }
 
 //--------------------------------------------------------------
