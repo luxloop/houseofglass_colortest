@@ -20,5 +20,9 @@ public:
     void gotMessage(ofMessage msg);
     
     ofBuffer colorscript;
+    ofColor screenColor;
+    vector<unsigned long long> timeList;
+    vector<ofColor> colorList;
+    int currentIndex;
 		
 };
