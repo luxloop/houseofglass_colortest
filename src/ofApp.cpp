@@ -18,6 +18,8 @@ void ofApp::setup(){
     //manualCounter = ULLONG_MAX;
     manualCounter = 0;
     
+    ofHideCursor();
+    
     
     string data = colorscript.getText();
     
@@ -183,7 +185,7 @@ void ofApp::draw(){
         ofDrawBitmapString("range: " + ofToString(timeRange), 20, ofGetHeight()-40);
         
         ofDrawBitmapString("elapsed time: " + ofToString(ofGetElapsedTimeMillis()), 20, ofGetHeight()-20);
-        ofDrawBitmapString("interpolation: " + ofToString(lerpPerc,1) + "%", 20, ofGetHeight()-10);
+        ofDrawBitmapString("interpolation: " + ofToString(lerpPerc,3) + "%", 20, ofGetHeight()-10);
         ofSetColor(255);
     }
     
