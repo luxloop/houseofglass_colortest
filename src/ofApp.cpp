@@ -3,13 +3,15 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     colorscript = ofBufferFromFile("colorscript.txt");
-    screenColor = ofColor(0,0,0);
+    screenColor = ofColor(255,255,255);
     timeList.clear();
     colorList.clear();
+    textList.clear();
     currentIndex = 0;
     timeRange = 0;
     lerpPerc = 0.0f;
     debug = false;
+    showText = false;
     easeRange = 2000;
     
     currentMode = LINEAR;
@@ -40,16 +42,39 @@ void ofApp::setup(){
                 timeList.push_back(millis);
             }
             
-            vector<string> colorData = ofSplitString(pieces[1], ",");
-            
             ofColor newColor;
-            newColor.r = ofToInt(colorData[0]);
-            newColor.g = ofToInt(colorData[1]);
-            newColor.b = ofToInt(colorData[2]);
+            
+            if (ofIsStringInString(pieces[1], ",")) {
+                vector<string> colorData = ofSplitString(pieces[1], ",");
+                newColor.r = ofToInt(colorData[0]);
+                newColor.g = ofToInt(colorData[1]);
+                newColor.b = ofToInt(colorData[2]);
+            } else {
+                string hex = "0x" + pieces[1];
+                newColor.setHex(ofHexToInt(hex));
+            }
+            
+            
+            
             
             colorList.push_back(newColor);
             
-            cout << millis << " | " << pieces[1] << endl;
+            //cout << millis << " | " << pieces[1] << endl;
+            //cout << millis << " | " << newColor << endl;;
+            
+            string toText;
+            int minutes = (millis/1000)/60;
+            int seconds = (millis/1000)%60;
+            toText = ofToString(minutes) + ":";
+            if (seconds < 10){
+                toText += "0";
+            }
+            toText += ofToString(seconds) + " | " + ofToString(millis) + " | " + ofToString(newColor);
+            cout << toText << endl;
+            textList.push_back(toText);
+
+
+            
         }
     }
     if (timeList.size() != colorList.size()) {
@@ -162,6 +187,20 @@ void ofApp::draw(){
         ofSetColor(255);
     }
     
+    if (showText) {
+        for (int i = 0; i < textList.size(); i++) {
+            if (currentMode != MANUAL && currentIndex == i) {
+                ofSetColor(255, 0, 0);
+            } else if (currentMode == MANUAL && currentIndex+1 == i) {
+                ofSetColor(255, 0, 0);
+            } else {
+                ofSetColor(0, 0, 0);
+            }
+            ofDrawBitmapString(textList[i], 20, 20+i*20);
+            ofSetColor(255);
+        }
+    }
+    
 }
 
 //--------------------------------------------------------------
@@ -169,6 +208,10 @@ void ofApp::keyPressed(int key){
     switch (key) {
         case '/':
             debug = !debug;
+            break;
+        
+        case '.':
+            showText = !showText;
             break;
             
         case '1':

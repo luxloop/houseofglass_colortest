@@ -23,6 +23,7 @@ public:
     ofColor screenColor;
     vector<unsigned long long> timeList;
     vector<ofColor> colorList;
+    vector<string> textList;
     int currentIndex;
     int easeRange;
     
@@ -30,6 +31,7 @@ public:
     float lerpPerc;
     
     bool debug;
+    bool showText;
     
     enum modes {
         LINEAR,
