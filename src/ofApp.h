@@ -24,5 +24,9 @@ public:
     vector<unsigned long long> timeList;
     vector<ofColor> colorList;
     int currentIndex;
+    
+    unsigned long long timeRange;
+    float lerpPerc;
+    
 		
 };

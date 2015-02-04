@@ -7,6 +7,9 @@ void ofApp::setup(){
     timeList.clear();
     colorList.clear();
     currentIndex = 0;
+    timeRange = 0;
+    lerpPerc = 0.0f;
+    
     
     string data = colorscript.getText();
     
@@ -51,10 +54,21 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    unsigned long long ellapsed = ofGetElapsedTimeMillis();
     
-    if (currentIndex < timeList.size()) {
-        if (ofGetElapsedTimeMillis() < timeList[currentIndex]) {
-            screenColor = colorList[currentIndex];
+    if (currentIndex < timeList.size()-1) {
+        if (currentIndex == 0) {
+            timeRange = timeList[0];
+            lerpPerc = (long double) ellapsed/timeRange;
+        } else {
+            timeRange = timeList[currentIndex] - timeList[currentIndex-1];
+            lerpPerc = (long double) (ellapsed - timeList[currentIndex-1])/timeRange;
+        }
+//        lerpPerc = (float) ellapsed/timeRange;
+        
+        if (ellapsed < timeList[currentIndex]) {
+            //screenColor = colorList[currentIndex];
+            screenColor = colorList[currentIndex].getLerped(colorList[currentIndex+1], lerpPerc);
         } else {
             currentIndex++;
         }
@@ -69,8 +83,12 @@ void ofApp::update(){
 void ofApp::draw(){
     ofSetColor(screenColor);
     ofRect(0, 0, ofGetWidth(), ofGetHeight());
-    ofSetColor(255, 0, 0);
+    ofSetColor(0, 0, 0);
+    ofDrawBitmapString("current index: " + ofToString(currentIndex), 20,ofGetHeight()-50);
+    ofDrawBitmapString("range: " + ofToString(timeRange), 20,ofGetHeight()-40);
+    
     ofDrawBitmapString(ofToString(ofGetElapsedTimeMillis()), 20,ofGetHeight()-20);
+    ofDrawBitmapString(ofToString(lerpPerc,3), 20,ofGetHeight()-10);
     ofSetColor(255);
     
 }
