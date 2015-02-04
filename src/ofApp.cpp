@@ -12,7 +12,7 @@ void ofApp::setup(){
     debug = false;
     easeRange = 2000;
     
-    currentMode = LINEAR;
+    currentMode = EASEINOUT;
     //manualCounter = ULLONG_MAX;
     manualCounter = 0;
     
@@ -65,15 +65,10 @@ void ofApp::update(){
     switch (currentMode) {
         case LINEAR:
             if (currentIndex < timeList.size()-1) {
-                if (currentIndex == 0) {
-                    timeRange = timeList[0];
-                    lerpPerc = (long double) ellapsed/timeRange;
-                } else {
-                    timeRange = timeList[currentIndex] - timeList[currentIndex-1];
-                    lerpPerc = (long double) (ellapsed - timeList[currentIndex-1])/timeRange;
-                }
+                timeRange = timeList[currentIndex+1] - timeList[currentIndex];
+                lerpPerc = (long double) (ellapsed - timeList[currentIndex])/timeRange;
                 
-                if (ellapsed < timeList[currentIndex]) {
+                if (ellapsed < timeList[currentIndex+1]) {
                     //screenColor = colorList[currentIndex];
                     screenColor = colorList[currentIndex].getLerped(colorList[currentIndex+1], lerpPerc);
                 } else {
@@ -86,29 +81,21 @@ void ofApp::update(){
             
         case EASEINOUT:
             if (currentIndex < timeList.size()-1) {
-                if (currentIndex == 0) {
-                    timeRange = timeList[0];
-                } else {
-                    timeRange = timeList[currentIndex] - timeList[currentIndex-1];
-                }
+                timeRange = timeList[currentIndex+1] - timeList[currentIndex];
                 
                 if (timeRange > easeRange) {
                     timeRange = easeRange;
-                    if (ellapsed < timeList[currentIndex]-timeRange) {
+                    if (ellapsed < timeList[currentIndex+1]-timeRange) {
                         lerpPerc = 0.0f;
                     } else {
-                        lerpPerc = (long double) (ellapsed - (timeList[currentIndex]-timeRange))/timeRange;
-//                        lerpPerc = 1.0f;
+                        lerpPerc = (long double) (ellapsed - (timeList[currentIndex+1]-timeRange))/timeRange;
+                        //lerpPerc = 1.0f;
                     }
                 } else {
-                    if (currentIndex == 0) {
-                        lerpPerc = (long double) ellapsed/timeRange;
-                    } else {
-                        lerpPerc = (long double) (ellapsed - timeList[currentIndex-1])/timeRange;
-                    }
+                    lerpPerc = (long double) (ellapsed - timeList[currentIndex])/timeRange;
                 }
                 
-                if (ellapsed < timeList[currentIndex]) {
+                if (ellapsed < timeList[currentIndex+1]) {
                     //screenColor = colorList[currentIndex];
                     screenColor = colorList[currentIndex].getLerped(colorList[currentIndex+1], lerpPerc);
                 } else {
